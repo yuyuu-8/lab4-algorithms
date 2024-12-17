@@ -14,30 +14,31 @@ const App = () => {
   const [startPoint, setStartPoint] = useState({ x: 0, y: 0 });
   const [endPoint, setEndPoint] = useState({ x: 100, y: 100 });
   const [radius, setRadius] = useState(50);
-  const [gridSize, setGridSize] = useState(10);
+  const [gridSize, setGridSize] = useState(10); // Размер сетки
   const [executionTime, setExecutionTime] = useState(0);
+  const [scale, setScale] = useState(1); // Масштаб
 
   // Функция отрисовки сетки и осей координат
   const drawGrid = (ctx, width, height) => {
     ctx.strokeStyle = '#e0e0e0';
     ctx.lineWidth = 0.5;
 
-    // Отрисовка линий сетки
-    for (let x = 0; x <= width; x += gridSize) {
+    // Отрисовка линий сетки с учетом масштаба
+    for (let x = 0; x <= width; x += gridSize * scale) {
       ctx.beginPath();
       ctx.moveTo(x, 0);
       ctx.lineTo(x, height);
       ctx.stroke();
     }
 
-    for (let y = 0; y <= height; y += gridSize) {
+    for (let y = 0; y <= height; y += gridSize * scale) {
       ctx.beginPath();
       ctx.moveTo(0, y);
       ctx.lineTo(width, y);
       ctx.stroke();
     }
 
-    // Отрисовка осей X и Y
+    // Отрисовка осей X и Y с учетом масштаба
     ctx.strokeStyle = '#000';
     ctx.lineWidth = 2;
     ctx.beginPath();
@@ -48,26 +49,24 @@ const App = () => {
     ctx.stroke();
 
     // Адаптивное отображение подписей на осях
-    const stepsX = Math.floor(width / (2 * gridSize)); // сколько шагов на оси X
-    const stepsY = Math.floor(height / (2 * gridSize)); // сколько шагов на оси Y
+    const stepsX = Math.floor(width / (2 * gridSize * scale));
+    const stepsY = Math.floor(height / (2 * gridSize * scale));
 
-    const labelOffset = 10; // смещение для подписей
+    const labelOffset = 10;
 
-    // Ось X: от 0 до максимально возможного значения по оси
     for (let i = 1; i <= stepsX; i++) {
-      if (i % Math.max(1, Math.floor(stepsX / 10)) === 0) { // отображаем подписи через каждые несколько шагов
+      if (i % Math.max(1, Math.floor(stepsX / 10)) === 0) {
         ctx.fillStyle = '#000';
-        ctx.fillText(i, width / 2 + i * gridSize, height / 2 + labelOffset);
-        ctx.fillText(-i, width / 2 - i * gridSize, height / 2 + labelOffset);
+        ctx.fillText(i, width / 2 + i * gridSize * scale, height / 2 + labelOffset);
+        ctx.fillText(-i, width / 2 - i * gridSize * scale, height / 2 + labelOffset);
       }
     }
 
-    // Ось Y: от 0 до максимально возможного значения по оси
     for (let i = 1; i <= stepsY; i++) {
-      if (i % Math.max(1, Math.floor(stepsY / 10)) === 0) { // отображаем подписи через каждые несколько шагов
+      if (i % Math.max(1, Math.floor(stepsY / 10)) === 0) { 
         ctx.fillStyle = '#000';
-        ctx.fillText(i, width / 2 + labelOffset, height / 2 - i * gridSize);
-        ctx.fillText(-i, width / 2 + labelOffset, height / 2 + i * gridSize);
+        ctx.fillText(i, width / 2 + labelOffset, height / 2 - i * gridSize * scale);
+        ctx.fillText(-i, width / 2 + labelOffset, height / 2 + i * gridSize * scale);
       }
     }
   };
@@ -76,25 +75,34 @@ const App = () => {
     ctx.fillStyle = 'red';
     points.forEach(point => {
       ctx.fillRect(
-        point.x * gridSize + ctx.canvas.width / 2 - 2,
-        ctx.canvas.height / 2 - point.y * gridSize - 2,
+        point.x * gridSize * scale + ctx.canvas.width / 2 - 2,
+        ctx.canvas.height / 2 - point.y * gridSize * scale - 2,
         4,
         4
       );
     });
   };
 
+  const handleWheel = (event) => {
+    event.preventDefault();
+
+    if (event.deltaY < 0) {
+      setScale(prevScale => Math.min(prevScale + 0.1, 3));
+    } else {
+      setScale(prevScale => Math.max(prevScale - 0.1, 0.5));
+    }
+  };
+
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
     
-    // Очистка canvas
+    canvas.addEventListener('wheel', handleWheel);
+
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    // Отрисовка сетки
     drawGrid(ctx, canvas.width, canvas.height);
     
-    // Вычисление координат относительно центра
     const x1 = startPoint.x;
     const y1 = startPoint.y;
     const x2 = endPoint.x;
@@ -135,7 +143,11 @@ const App = () => {
 
     setExecutionTime(execTime);
     drawPoints(ctx, points);
-  }, [algorithm, startPoint, endPoint, radius, gridSize]);
+
+    return () => {
+      canvas.removeEventListener('wheel', handleWheel);
+    };
+  }, [algorithm, startPoint, endPoint, radius, gridSize, scale]); // Добавляем scale в зависимости
 
   return (
     <div className="app">
