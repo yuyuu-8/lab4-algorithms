@@ -1,4 +1,3 @@
-// App.js
 import React, { useState, useRef, useEffect } from 'react';
 import './App.css';
 import {
@@ -23,6 +22,7 @@ const App = () => {
     ctx.strokeStyle = '#e0e0e0';
     ctx.lineWidth = 0.5;
 
+    // Отрисовка линий сетки
     for (let x = 0; x <= width; x += gridSize) {
       ctx.beginPath();
       ctx.moveTo(x, 0);
@@ -37,23 +37,47 @@ const App = () => {
       ctx.stroke();
     }
 
-    // Оси координат
+    // Отрисовка осей X и Y
     ctx.strokeStyle = '#000';
     ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.moveTo(width/2, 0);
-    ctx.lineTo(width/2, height);
-    ctx.moveTo(0, height/2);
-    ctx.lineTo(width, height/2);
+    ctx.moveTo(width / 2, 0); // ось Y
+    ctx.lineTo(width / 2, height);
+    ctx.moveTo(0, height / 2); // ось X
+    ctx.lineTo(width, height / 2);
     ctx.stroke();
+
+    // Адаптивное отображение подписей на осях
+    const stepsX = Math.floor(width / (2 * gridSize)); // сколько шагов на оси X
+    const stepsY = Math.floor(height / (2 * gridSize)); // сколько шагов на оси Y
+
+    const labelOffset = 10; // смещение для подписей
+
+    // Ось X: от 0 до максимально возможного значения по оси
+    for (let i = 1; i <= stepsX; i++) {
+      if (i % Math.max(1, Math.floor(stepsX / 10)) === 0) { // отображаем подписи через каждые несколько шагов
+        ctx.fillStyle = '#000';
+        ctx.fillText(i, width / 2 + i * gridSize, height / 2 + labelOffset);
+        ctx.fillText(-i, width / 2 - i * gridSize, height / 2 + labelOffset);
+      }
+    }
+
+    // Ось Y: от 0 до максимально возможного значения по оси
+    for (let i = 1; i <= stepsY; i++) {
+      if (i % Math.max(1, Math.floor(stepsY / 10)) === 0) { // отображаем подписи через каждые несколько шагов
+        ctx.fillStyle = '#000';
+        ctx.fillText(i, width / 2 + labelOffset, height / 2 - i * gridSize);
+        ctx.fillText(-i, width / 2 + labelOffset, height / 2 + i * gridSize);
+      }
+    }
   };
 
   const drawPoints = (ctx, points) => {
     ctx.fillStyle = 'red';
     points.forEach(point => {
       ctx.fillRect(
-        point.x * gridSize + ctx.canvas.width/2 - 2,
-        ctx.canvas.height/2 - point.y * gridSize - 2,
+        point.x * gridSize + ctx.canvas.width / 2 - 2,
+        ctx.canvas.height / 2 - point.y * gridSize - 2,
         4,
         4
       );
@@ -186,52 +210,6 @@ const App = () => {
         height={600}
         style={{border: '1px solid black'}}
       />
-
-<div class="algorithm-description">
-            <h2>Алгоритм ЦДА (DDA) для рисования линии</h2>
-
-            <h3>Пошаговый пример:</h3>
-            <p>
-                Рисуем линию от точки (2, 3) до точки (7, 5).
-            </p>
-            <ol>
-                <li>Вычисляем разности:
-                    <ul>
-                        <li>dx = 7 - 2 = 5</li>
-                        <li>dy = 5 - 3 = 2</li>
-                    </ul>
-                </li>
-                <li>Определяем количество шагов:
-                    <ul>
-                        <li>steps = max(|dx|, |dy|) = 5</li>
-                    </ul>
-                </li>
-                <li>Вычисляем инкременты:
-                    <ul>
-                        <li>xIncrement = dx / steps = 5 / 5 = 1</li>
-                        <li>yIncrement = dy / steps = 2 / 5 = 0.4</li>
-                    </ul>
-                </li>
-                <li>Инициализация:
-                    <ul>
-                        <li>x = 2</li>
-                        <li>y = 3</li>
-                    </ul>
-                </li>
-                <li>Итерации:
-                    <ul>
-                        <li>Шаг 1: (2, 3) → (3, 3.4) → округляем до (3, 3)</li>
-                        <li>Шаг 2: (3, 3.4) → (4, 3.8) → округляем до (4, 4)</li>
-                        <li>Шаг 3: (4, 3.8) → (5, 4.2) → округляем до (5, 4)</li>
-                        <li>Шаг 4: (5, 4.2) → (6, 4.6) → округляем до (6, 5)</li>
-                        <li>Шаг 5: (6, 4.6) → (7, 5) → округляем до (7, 5)</li>
-                    </ul>
-                </li>
-            </ol>
-            <p>
-                <strong>Результат:</strong> Пиксели, нарисованные алгоритмом: (2,3), (3,3), (4,4), (5,4), (6,5), (7,5)
-            </p>
-        </div>
     </div>
   );
 };
