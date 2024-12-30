@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Алгоритмы растеризации</title>
+</head>
+<body>
+    <div class="canvas-container">
+        <h2>Алгоритмы растеризации</h2>
+        <canvas id="canvas" width="800" height="600"></canvas>
+        <div class="controls">
+            <div class="input-group">
+                <label>Начальная точка:</label>
+                <input type="number" id="x1" value="-10" placeholder="x1">
+                <input type="number" id="y1" value="-10" placeholder="y1">
+                <label>Конечная точка:</label>
+                <input type="number" id="x2" value="10" placeholder="x2">
+                <input type="number" id="y2" value="10" placeholder="y2">
+                <button onclick="randomizeCoordinates()">Случайные координаты</button>
+            </div>
+            <div class="input-group">
+                <label>Радиус окружности:</label>
+                <input type="number" id="radius" value="8" placeholder="радиус">
+            </div>
+           <div class="algorithm-buttons">
+                <button onclick="drawStepByStep()">Пошаговый</button>
+                <button onclick="drawDDA()">ЦДА</button>
+                <button onclick="drawBresenham()">Брезенхем (линия)</button>
+                <button onclick="drawBresenhamCircle()">Брезенхем (окружность)</button>
+            </div>
+            <div class="input-group">
+                <label>Масштаб:</label>]
+                <input type="range" id="scale" min="5" max="50" value="20" step="0.1" onchange="updateScale()">
+                <span id="scaleValue">Масштаб: 20.0</span>
+            </div>
+        </div>
+        <div class="results">
+            <h3>Время выполнения:</h3>
+            <pre id="timing"></pre>
+        </div>
+        <div class="algorithm-description">
+            <h2>Алгоритм ЦДА (DDA) для рисования линии</h2>
+
+            <h3>Пошаговый пример:</h3>
+            <p>
+                Рисуем линию от точки (2, 3) до точки (7, 5).
+            </p>
+            <ol>
+                <li>Вычисляем разности:
+                    <ul>
+                        <li>dx = 7 - 2 = 5</li>
+                        <li>dy = 5 - 3 = 2</li>
+                    </ul>
+                </li>
+                <li>Определяем количество шагов:
+                    <ul>
+                        <li>steps = max(|dx|, |dy|) = 5</li>
+                    </ul>
+                </li>
+                <li>Вычисляем инкременты:
+                    <ul>
+                        <li>xIncrement = dx / steps = 5 / 5 = 1</li>
+                        <li>yIncrement = dy / steps = 2 / 5 = 0.4</li>
+                    </ul>
+                </li>
+                <li>Инициализация:
+                    <ul>
+                        <li>x = 2</li>
+                        <li>y = 3</li>
+                    </ul>
+                </li>
+                <li>Итерации:
+                    <ul>
+                        <li>Шаг 1: (2, 3) → (3, 3.4) → округляем до (3, 3)</li>
+                        <li>Шаг 2: (3, 3.4) → (4, 3.8) → округляем до (4, 4)</li>
+                        <li>Шаг 3: (4, 3.8) → (5, 4.2) → округляем до (5, 4)</li>
+                        <li>Шаг 4: (5, 4.2) → (6, 4.6) → округляем до (6, 5)</li>
+                        <li>Шаг 5: (6, 4.6) → (7, 5) → округляем до (7, 5)</li>
+                    </ul>
+                </li>
+            </ol>
+            <p>
+                <strong>Результат:</strong> Пиксели, нарисованные алгоритмом: (2,3), (3,3), (4,4), (5,4), (6,5), (7,5)
+            </p>
+        </div>
+
+    </div>
+
+    <script src="../script.js"></script>
+</body>
+</html>
